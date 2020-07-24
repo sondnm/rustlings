@@ -3,6 +3,7 @@
 // instead of the target type itself.
 // You can read more about it at https://doc.rust-lang.org/std/convert/trait.TryFrom.html
 use std::convert::{TryInto, TryFrom};
+use std::ops::RangeInclusive;
 
 #[derive(Debug)]
 struct Color {
@@ -10,8 +11,6 @@ struct Color {
     green: u8,
     blue: u8,
 }
-
-// I AM NOT DONE
 
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
@@ -23,9 +22,19 @@ struct Color {
 // Also note, that chunk of correct rgb color must be integer in range 0..=255.
 
 // Tuple implementation
+const COLOR_RANGE: RangeInclusive<i16> = (0..=255);
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = String;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        let (red, green, blue) = tuple;
+        match COLOR_RANGE.contains(&red) && COLOR_RANGE.contains(&green) && COLOR_RANGE.contains(&blue) {
+            true => Ok(Color {
+                red: red as u8,
+                green: green as u8,
+                blue: blue as u8,
+            }),
+            false => Err("out of range".to_string())
+        }
     }
 }
 
@@ -33,6 +42,15 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = String;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        let [red, green, blue] = arr;
+        match COLOR_RANGE.contains(&red) && COLOR_RANGE.contains(&green) && COLOR_RANGE.contains(&blue) {
+            true => Ok(Color {
+                red: red as u8,
+                green: green as u8,
+                blue: blue as u8,
+            }),
+            false => Err("out of range".to_string())
+        }
     }
 }
 
@@ -40,6 +58,20 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = String;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        match slice.len() {
+            3 => {
+                let (red, green, blue) = (slice[0], slice[1], slice[2]);
+                match COLOR_RANGE.contains(&red) && COLOR_RANGE.contains(&green) && COLOR_RANGE.contains(&blue) {
+                    true => Ok(Color {
+                        red: red as u8,
+                        green: green as u8,
+                        blue: blue as u8,
+                    }),
+                    false => Err("out of range".to_string())
+                }
+            },
+            _ => Err("incorrect slice size".to_string())
+        }
     }
 }
 
